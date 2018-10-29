@@ -1,0 +1,24 @@
+$slist = Get-content -path C:\Users\x382952a\Desktop\BESService\servers.txt
+$Array = @()
+
+foreach($server in $slist){
+	write-host ""
+	write-host "======================================================================="
+	Write-host "Adding account to $server"
+	write-host "======================================================================="
+	write-host ""
+	sc.exe \\$server config "besclient" start= auto
+	sc.exe \\$server stop "besclient"
+	sleep 10
+	sc.exe \\$server start "besclient" 
+
+	$SStatus = (get-service -ComputerName $server -Name besclient).status
+
+	$v =  New-Object Object
+    	$v |  add-member -membertype noteproperty -name "Server" -value $server
+    	$v |  add-member -membertype noteproperty -name "Status" -value $SStatus
+    	$Array += $v
+    	$Array | Export-Csv -Path C:\Users\x382952a\Desktop\BES_Status.csv -notypeinformation 
+
+
+}
